@@ -1,0 +1,39 @@
+#!/usr/bin/env ansible-playbook -i ../hosts
+
+---
+- hosts: all
+  gather_facts: false
+
+  vars_prompt:
+    - name: "prompt_user_local_ssh_key"
+      prompt: "\nВАЖНО!\n\nВыполните на своем (домашнем) компьютере сл. команду `cat ~/.ssh/id_rsa.pub`\nВывод команды скопируйте и вставьте сюда"
+      private: true
+
+  tasks:
+    - name: "Проверка введенного ключа"
+      fail:
+        msg="Ключ не был установлен. Запустите команду еще раз и установите ключ"
+      when: "prompt_user_local_ssh_key == ''"
+
+    - name: "Установка публичного ключа с текущего хоста"
+      authorized_key:
+        user: "{{ ansible_default_remote_user }}"
+        state: present
+        key: "{{ lookup('file', lookup('ENV', 'HOME') + '/.ssh/id_rsa.pub') }}"
+
+    - name: "Проверка наличия ключа с личного (домашнего) компьютера"
+      become: true
+      command: /bin/grep -c "^{{ prompt_user_local_ssh_key }}$" "/home/{{ ansible_default_remote_user }}/.ssh/authorized_keys"
+      register: result
+      ignore_errors: true
+      no_log: true
+
+    - name: "ИНФО"
+      debug:
+        msg: "Ключ уже был установлен ранее"
+      when: result is succeeded
+
+    - name: "Установка ssh-ключа от личного (домашнего) компьютера"
+      shell: |
+        /bin/echo "{{ prompt_user_local_ssh_key }}" >> "/home/{{ ansible_default_remote_user }}/.ssh/authorized_keys"
+      when: result is failed
