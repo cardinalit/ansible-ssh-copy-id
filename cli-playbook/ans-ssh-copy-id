@@ -1,7 +1,8 @@
 #!/usr/bin/env ansible-playbook -i ../hosts
 
 ---
-- hosts: all
+- name: "Запуск копирования ключей"
+  hosts: all
   gather_facts: false
 
   vars_prompt:
