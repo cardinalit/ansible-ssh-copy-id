@@ -29,7 +29,7 @@
       ignore_errors: true
       no_log: true
 
-    - name: "ИНФО"
+    - name: "Дополнительная информация"
       debug:
         msg: "Ключ уже был установлен ранее"
       when: result is succeeded
