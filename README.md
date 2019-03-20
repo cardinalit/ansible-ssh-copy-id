@@ -1,2 +1,11 @@
 # ansible-ssh-copy-id
-Ansible cli-playbook for copy public ssh-key
+
+`Ansible cli-playbook` для копирования **ssh-ключей** пользователя с текущей машины, откуда запускается команда, и ключа с личного компьютера. 
+
+## Зависимости
+
+Ansible, для подключение по паролю через ssh, использует консольную утилиту `sshpass`. Она будет необходима для корректной работы `cli-playbook`. 
+
+```sh
+$ sudo apt-get install sshpass
+```
